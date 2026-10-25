@@ -1,8 +1,8 @@
 # Introduction
 
-**FluxData** is a client-side application designed to transform common data files, such as `.xlsx` and `.csv`, into database-ready data directly in the browser.
+**Fooglud** is a client-side application designed to transform common data files, such as `.xlsx` and `.csv`, into database-ready data directly in the browser.
 
-**FluxData** is implemented in Blazor (C#), with AOT compilation and WebAssembly, to provide high performance and a smooth canvas experience while using fewer computational resources.
+**Fooglud** is implemented in Blazor (C#), with AOT compilation and WebAssembly, to provide high performance and a smooth canvas experience while using fewer computational resources.
 
 # Goals
 
@@ -12,8 +12,8 @@ No APIs, companies, or unnecessary services: just upload your file, select the o
 
 ## Specific Objectives
 
-- **Easy to understand:** A single page with three simple steps. You edit what you want, and FluxData generates the output file for you.
-- **Performance:** Process multiple files and large sheets quickly in your own browser. FluxData does not support multithreading for strong parallelism yet, and low-allocation principles have not been fully established in practice.
+- **Easy to understand:** A single page with three simple steps. You edit what you want, and Fooglud generates the output file for you.
+- **Performance:** Process multiple files and large sheets quickly in your own browser. Fooglud does not support multithreading for strong parallelism yet, and low-allocation principles have not been fully established in practice.
 
 # Why Parquet?
 
