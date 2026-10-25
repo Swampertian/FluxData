@@ -1,10 +1,4 @@
-window.downloadFileFromBase64 = (fileName, base64) => {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-
+window.downloadFileFromBytes = (fileName, bytes) => {
     const blob = new Blob([bytes], { type: "application/octet-stream" });
     const url = URL.createObjectURL(blob);
 

@@ -142,7 +142,7 @@ public partial class Home
         {
             var zipBytes = await Pipeline.ExportAsync(workbookData);
             var fileName = $"{Path.GetFileNameWithoutExtension(workbookData.FileName)}.zip";
-            await JS.InvokeVoidAsync("downloadFileFromBase64", fileName, Convert.ToBase64String(zipBytes));
+            await JS.InvokeVoidAsync("downloadFileFromBytes", fileName, zipBytes);
         }
         catch (ExcelConverterException ex)
         {
