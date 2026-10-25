@@ -6,6 +6,7 @@ Default dir: bin/Release/net10.0/publish/wwwroot, default port: 8099
 """
 import http.server
 import functools
+import os
 import sys
 
 WEBROOT = sys.argv[1] if len(sys.argv) > 1 else "bin/Release/net10.0/publish/wwwroot"
@@ -23,6 +24,12 @@ class CoopCoepHandler(http.server.SimpleHTTPRequestHandler):
         if path.endswith(".wasm"):
             return "application/wasm"
         return super().guess_type(path)
+
+    def translate_path(self, path):
+        translated = super().translate_path(path)
+        if not os.path.isfile(translated):
+            return super().translate_path("/index.html")
+        return translated
 
 
 Handler = functools.partial(CoopCoepHandler, directory=WEBROOT)

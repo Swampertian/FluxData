@@ -1,0 +1,22 @@
+<div class="dropzone">
+    <InputFile class="dropzone__input" accept=".xlsx,.xlsm,.xls" OnChange="OnFileSelected" />
+
+    <div class="dropzone__content">
+        <div class="dropzone__label">@Label</div>
+        <div class="dropzone__hint">@Hint</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "Arraste o arquivo Excel aqui";
+    [Parameter] public string Hint { get; set; } = "ou clique para selecionar";
+    [Parameter] public EventCallback<IBrowserFile> OnFile { get; set; }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        if (e.File is not null)
+        {
+            await OnFile.InvokeAsync(e.File);
+        }
+    }
+}

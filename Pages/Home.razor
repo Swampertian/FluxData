@@ -1,83 +1,69 @@
 @page "/"
-@using DocsData.ExcelConverter
-@using DocsData.ExcelConverter.Abstractions
-@using DocsData.ExcelConverter.Models
-@inject IExcelPipeline Pipeline
+@layout DocsData.Layout.CanvasLayout
+@using DocsData.Components
+@using Blazor.Diagrams.Components
+@inject IJSRuntime JS
 
-<PageTitle>DocsData</PageTitle>
+<PageTitle>Fooglud</PageTitle>
 
-<h1>DocsData</h1>
+<div class="home-canvas">
+    <div class="home-canvas__toolbar">
+        <PipelineStepper CurrentStep="@currentStep" OnStepClick="GoToStep" />
 
-<InputFile accept=".xlsx,.xlsm,.xls" OnChange="OnFileSelected" />
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
-
-@if (upload is not null)
-{
-    <p>Arquivo: @upload.FileName</p>
-
-    <button @onclick="ProcessAsync" disabled="@isProcessing">
-        @(isProcessing ? "Processando..." : "Processar planilhas")
-    </button>
-}
-
-@if (workbookData is not null)
-{
-    <h2>Resultado</h2>
-    <ul>
-        @foreach (var sheet in workbookData.Sheets)
+        @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <li>@sheet.Name — @sheet.RowCount linhas x @sheet.ColumnCount colunas</li>
+            <div class="home__error">@errorMessage</div>
         }
-    </ul>
-}
 
-@code {
-    private UploadResult? upload;
-    private WorkbookData? workbookData;
-    private string? errorMessage;
-    private bool isProcessing;
+        @if (workbookData is null)
+        {
+            <DropZone Label="Arraste o arquivo Excel aqui"
+                      Hint="ou clique para selecionar (.xlsx, .xlsm, .xls)"
+                      OnFile="OnFileSelected" />
+        }
 
-    private async Task OnFileSelected(InputFileChangeEventArgs e)
+        @if (upload is not null && workbookData is null)
+        {
+            <div class="home__file-info">
+                <span class="home__file-name">@upload.FileName</span>
+                <button class="btn btn-primary" @onclick="ProcessAsync" disabled="@isProcessing">
+                    @(isProcessing ? "Processando..." : "Processar planilhas")
+                </button>
+            </div>
+        }
+
+        @if (workbookData is not null)
+        {
+            <ActionBar>
+                <LeftContent>
+                    <button class="btn btn-outline" @onclick="Reset">
+                        Novo arquivo
+                    </button>
+                    <button class="btn btn-outline" @onclick="ApplyTransformAsync" disabled="@isTransforming">
+                        @(isTransforming ? "Aplicando..." : "Aplicar alteracoes")
+                    </button>
+                </LeftContent>
+                <RightContent>
+                    @if (hasPendingSelection)
+                    {
+                        <span class="home__hint">Aplique as alteracoes para exportar</span>
+                    }
+                    <button class="btn btn-primary"
+                            @onclick="ExportAsync"
+                            disabled="@(isExporting || hasPendingSelection)">
+                        @(isExporting ? "Exportando..." : "Exportar Parquet")
+                    </button>
+                </RightContent>
+            </ActionBar>
+        }
+    </div>
+
+    @if (workbookData is not null)
     {
-        errorMessage = null;
-        upload = null;
-        workbookData = null;
-
-        try
-        {
-            upload = await Pipeline.UploadAsync(e.File);
-        }
-        catch (ExcelConverterException ex)
-        {
-            errorMessage = ex.Message;
-        }
+        <div class="home-canvas__surface">
+            <CascadingValue Value="Diagram">
+                <DiagramCanvas></DiagramCanvas>
+            </CascadingValue>
+        </div>
     }
-
-    private async Task ProcessAsync()
-    {
-        if (upload is null)
-        {
-            return;
-        }
-
-        errorMessage = null;
-        isProcessing = true;
-
-        try
-        {
-            workbookData = await Pipeline.ProcessAsync(upload.Content, upload.FileName);
-        }
-        catch (ExcelConverterException ex)
-        {
-            errorMessage = ex.Message;
-        }
-        finally
-        {
-            isProcessing = false;
-        }
-    }
-}
+</div>

@@ -1,0 +1,115 @@
+<div class="sheet-card @(Included ? "" : "sheet-card--excluded")">
+    <div class="sheet-card__header">
+        <label class="sheet-card__include" title="Incluir esta planilha na exportacao">
+            <input type="checkbox" checked="@Included" @onchange="HandleIncludedChange" />
+            <span class="sheet-card__title">@SheetName</span>
+        </label>
+        <span class="sheet-card__meta">@RowCount linhas x @ColumnCount colunas</span>
+
+        <div class="sheet-card__rename">
+            <label class="sheet-card__rename-label" for="@TargetNameInputId">Nome da tabela</label>
+            <input id="@TargetNameInputId"
+                   type="text"
+                   value="@TargetName"
+                   disabled="@(!Included)"
+                   @onchange="HandleTargetNameChange" />
+        </div>
+    </div>
+
+    @if (Included)
+    {
+        <div class="sheet-card__table-wrapper">
+            <table class="sheet-card__table">
+                <thead>
+                    <tr>
+                        <th class="sheet-card__col-include">Incluir</th>
+                        <th>Coluna original</th>
+                        <th>Novo nome</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var column in Columns)
+                    {
+                        var col = column;
+                        <tr class="@(col.Include ? "" : "sheet-card__row--excluded")">
+                            <td class="sheet-card__col-include">
+                                <input type="checkbox"
+                                       checked="@col.Include"
+                                       @onchange="(ChangeEventArgs e) => HandleIncludeChange(col, e)" />
+                            </td>
+                            <td class="sheet-card__cell-original">@col.OriginalName</td>
+                            <td>
+                                <input type="text"
+                                       value="@col.Name"
+                                       disabled="@(!col.Include)"
+                                       @onchange="(ChangeEventArgs e) => HandleNameChange(col, e)" />
+                            </td>
+                            <td>
+                                <select value="@col.TypeName"
+                                        disabled="@(!col.Include)"
+                                        @onchange="(ChangeEventArgs e) => HandleTypeChange(col, e)">
+                                    @foreach (var typeName in AvailableTypes)
+                                    {
+                                        <option value="@typeName">@typeName</option>
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string SheetName { get; set; } = "";
+    [Parameter] public int RowCount { get; set; }
+    [Parameter] public int ColumnCount { get; set; }
+    [Parameter] public List<ColumnState> Columns { get; set; } = [];
+    [Parameter] public EventCallback<ColumnState> OnColumnChanged { get; set; }
+
+    [Parameter] public bool Included { get; set; } = true;
+    [Parameter] public EventCallback<bool> IncludedChanged { get; set; }
+
+    [Parameter] public string TargetName { get; set; } = "";
+    [Parameter] public EventCallback<string> TargetNameChanged { get; set; }
+
+    private static readonly string[] AvailableTypes = ["string", "double", "datetime", "bool"];
+
+    private string TargetNameInputId => $"sheet-target-{SheetName}";
+
+    private Task HandleIncludedChange(ChangeEventArgs e) =>
+        IncludedChanged.InvokeAsync(e.Value as bool? ?? false);
+
+    private Task HandleTargetNameChange(ChangeEventArgs e) =>
+        TargetNameChanged.InvokeAsync(e.Value?.ToString() ?? "");
+
+    private void HandleIncludeChange(ColumnState column, ChangeEventArgs e)
+    {
+        column.Include = e.Value as bool? ?? false;
+        OnColumnChanged.InvokeAsync(column);
+    }
+
+    private void HandleNameChange(ColumnState column, ChangeEventArgs e)
+    {
+        column.Name = e.Value?.ToString() ?? "";
+        OnColumnChanged.InvokeAsync(column);
+    }
+
+    private void HandleTypeChange(ColumnState column, ChangeEventArgs e)
+    {
+        column.TypeName = e.Value?.ToString() ?? "";
+        OnColumnChanged.InvokeAsync(column);
+    }
+
+    public sealed class ColumnState
+    {
+        public required string OriginalName { get; init; }
+        public required string OriginalTypeName { get; init; }
+        public required string Name { get; set; }
+        public required string TypeName { get; set; }
+        public bool Include { get; set; } = true;
+    }
+}

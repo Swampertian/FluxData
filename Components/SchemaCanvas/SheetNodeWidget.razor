@@ -1,0 +1,11 @@
+<div class="schema-node @(Node.Selected ? "schema-node--selected" : "")">
+    <SheetCard SheetName="@Node.Sheet.SheetName"
+               RowCount="@Node.Sheet.RowCount"
+               ColumnCount="@Node.Sheet.ColumnCount"
+               Columns="@Node.Sheet.Columns"
+               Included="@Node.Sheet.Included"
+               IncludedChanged="@OnIncludedChanged"
+               TargetName="@Node.Sheet.TargetName"
+               TargetNameChanged="@OnTargetNameChanged"
+               OnColumnChanged="@OnColumnChanged" />
+</div>

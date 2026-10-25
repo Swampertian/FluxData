@@ -482,5 +482,6 @@ $RECYCLE.BIN/
 *.swp
 
 # Local docs / assistant files
+.vscode/
 CLAUDE.md
 docs/

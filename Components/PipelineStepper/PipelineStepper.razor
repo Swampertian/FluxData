@@ -1,0 +1,42 @@
+<div class="stepper">
+    @foreach (var step in Steps)
+    {
+        var isActive = step.Index == CurrentStep;
+        var isCompleted = step.Index < CurrentStep;
+
+        <div class="stepper__item @(isActive ? "stepper__item--active" : "") @(isCompleted ? "stepper__item--completed" : "")">
+            @if (isCompleted)
+            {
+                <button type="button" class="stepper__hit" @onclick="() => OnStepClick.InvokeAsync(step.Index)" title="Voltar para @step.Label">
+                    <div class="stepper__dot"></div>
+                    <div class="stepper__label">@step.Label</div>
+                </button>
+            }
+            else
+            {
+                <div class="stepper__dot"></div>
+                <div class="stepper__label">@step.Label</div>
+            }
+        </div>
+
+        @if (step.Index < Steps.Length - 1)
+        {
+            <div class="stepper__line @(isCompleted ? "stepper__line--completed" : "")"></div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int CurrentStep { get; set; }
+    [Parameter] public EventCallback<int> OnStepClick { get; set; }
+
+    private StepItem[] Steps { get; } =
+    [
+        new(0, "Upload"),
+        new(1, "Preview"),
+        new(2, "Transform"),
+        new(3, "Export")
+    ];
+
+    private sealed record StepItem(int Index, string Label);
+}

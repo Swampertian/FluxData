@@ -1,0 +1,31 @@
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) 0;
+    gap: var(--space-md);
+}
+
+.action-bar__left,
+.action-bar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+@media (max-width: 640px) {
+    .action-bar {
+        flex-direction: column;
+    }
+
+    .action-bar__left,
+    .action-bar__right {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .action-bar__left ::deep .btn,
+    .action-bar__right ::deep .btn {
+        flex: 1;
+    }
+}
