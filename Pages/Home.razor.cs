@@ -20,6 +20,7 @@ public partial class Home
     private const double NodeStartY = 220;
 
     [Inject] private IExcelPipeline Pipeline { get; set; } = null!;
+    [Inject] private ILogger<Home> Logger { get; set; } = null!;
 
     public BlazorDiagram Diagram { get; } = new();
 
@@ -147,6 +148,11 @@ public partial class Home
         catch (ExcelConverterException ex)
         {
             errorMessage = ex.Message;
+        }
+        catch (JSException ex)
+        {
+            Logger.LogError(ex, "Download do export falhou");
+            errorMessage = "Falha ao baixar o arquivo. Tente novamente.";
         }
         finally
         {
