@@ -24,7 +24,34 @@ internal static class CellTypeConverter
 
         if (targetType == typeof(string))
         {
-            return value is IFormattable formattable ? formattable.ToString(null, CultureInfo.InvariantCulture) : value.ToString();
+            return value switch
+            {
+                DateTime dateTime => dateTime.ToString("s", CultureInfo.InvariantCulture),
+                IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
+                _ => value.ToString()
+            };
+        }
+
+        if (value is double number)
+        {
+            if (targetType == typeof(bool))
+            {
+                return number switch { 1 => true, 0 => false, _ => null };
+            }
+
+            // Excel stores dates as OLE Automation serials; a number column without a date format
+            // still carries them.
+            if (targetType == typeof(DateTime))
+            {
+                return number is >= -657435.0 and < 2958466.0 ? DateTime.FromOADate(number) : null;
+            }
+
+            return null;
+        }
+
+        if (value is bool flag && targetType == typeof(double))
+        {
+            return flag ? 1d : 0d;
         }
 
         if (value is not string text)

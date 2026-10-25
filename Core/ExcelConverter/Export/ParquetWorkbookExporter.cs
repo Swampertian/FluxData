@@ -89,6 +89,7 @@ public sealed class ParquetWorkbookExporter : IWorkbookExporter
     {
         null => null,
         string s => s,
+        DateTime dateTime => dateTime.ToString("s", CultureInfo.InvariantCulture),
         IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
         _ => value.ToString()
     };

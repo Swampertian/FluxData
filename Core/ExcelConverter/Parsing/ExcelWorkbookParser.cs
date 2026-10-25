@@ -91,13 +91,24 @@ public sealed class ExcelWorkbookParser : IWorkbookParser
         return new SheetData(sheetName, columnNames, columnTypes!, rows);
     }
 
+    // Typed accessors instead of GetValue: the default schema stringifies every cell, and
+    // ExcelSchema.Dynamic splits numbers into Int32/Double and yields TimeSpan, none of which
+    // fit the double/DateTime/bool/string set the export stage writes. Time-only cells stay text.
     private static object? ReadCell(ExcelDataReader reader, int ordinal)
     {
-        if (reader.GetExcelDataType(ordinal) == ExcelDataType.Error)
+        return reader.GetExcelDataType(ordinal) switch
         {
-            return $"#{reader.GetFormulaError(ordinal)}";
-        }
-
-        return reader.IsDBNull(ordinal) ? null : reader.GetValue(ordinal);
+            ExcelDataType.Null => null,
+            ExcelDataType.Error => $"#{reader.GetFormulaError(ordinal)}",
+            ExcelDataType.Boolean => reader.GetBoolean(ordinal),
+            ExcelDataType.DateTime => reader.GetDateTime(ordinal),
+            ExcelDataType.Numeric => reader.GetFormat(ordinal)?.Kind switch
+            {
+                FormatKind.Date => reader.GetDateTime(ordinal),
+                FormatKind.Time => reader.GetString(ordinal),
+                _ => reader.GetDouble(ordinal)
+            },
+            _ => reader.GetString(ordinal)
+        };
     }
 }
